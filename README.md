@@ -18,11 +18,11 @@ These flags are *required* for single file processing:
  * `--chains` Chains for which to calculate shape complementary score.
 
 These flags are *recommended* for single file processing:
- * `--output_dir` Path to output directory (default="./")
+ * `--output_dir` Path to output directory **(default="./")**.
  * `--save_obj_files` If provided, saves PyMOL interface mesh outputs as individual `.obj` files, helpful for inspection and troubleshooting. If Sc scores are unexpected, issues may stem from incorrect mesh generation.
  * `--save_binder_files` If provided, saves Binder 1 and Binder 2 as individual `.pdb` files.
 
-**Example**
+### Single file example
 To calculate the Sc score between an antibody and an antigen, use `--chains HL_Y` which treats the heavy and light chains as a single interface, and the antigen chain as a separate interface. Chains may also be omitted from this flag `-chains H_Y` so that only the heavy chain comprises the antibody interface.
 ```
 python run_scPDB.py --pdb_file ./examples/1FDL.pdb --chains HL_Y --output_dir ./examples
@@ -36,9 +36,10 @@ These flags are *required* for batch processing:
  * `--batch_csv` Path to PDB file.
 
 These flags are *recommended* for batch processing:
- * `--output_dir` Path to output directory (default="./")
+ * `--output_dir` Path to output directory **(default="./")**.
 
-**Example**
+### Batch example
+Before running a batch command, ensure that the single file processing command executes succesfully.
 ```
 python run_scPDB.py --batch_csv ./examples/examples.csv --output_dir ./examples
 ```
@@ -58,5 +59,5 @@ Although shape complementarity scores range anywhere from [-1, 1], most protein 
 
 **Orientation component:** Two surfaces (P<sub>A</sub> and P<sub>B</sub>) that are oriented away from one another will have a normal vector dot product (n<sub>A</sub> &middot; n'<sub>A</sub>) that is negative or close to 0. Surfaces that are highly oriented will produce a positive normal vector dot product.
 
-**Distance component:** Two surfaces that are further apart are less complementary, since the fit between the two proteins is less "snug". Consider the following: if P<sub>A</sub> and P<sub>B</sub> are being pulled apart, the absolute value of the distance between x<sub>A</sub> and x'<sub>A</sub> is growing quadratically, resulting in a large negative value. As a result, Sc approaches 0 (e<sup>-&infin;</sup> = 0). Inversely, if the two surfaces are very close, the absolute value of the distance approaches 0 and Sc approaches 1 (e<sup>0</sup> = 1). -&#119908; is a scalar weight constant, as implemented by Lawrence & Colman, 1993.
+**Distance component:** Two surfaces that are further apart are less complementary, since the fit between the two proteins is less "snug". Consider the following: if P<sub>A</sub> and P<sub>B</sub> are being pulled apart, the absolute value of the distance between x<sub>A</sub> and x'<sub>A</sub> is growing quadratically, resulting in a large negative value. As a result, Sc approaches 0 (e<sup>-&infin;</sup> = 0). Inversely, if the two surfaces are very close, the absolute value of the distance approaches 0 and Sc approaches 1 (e<sup>0</sup> = 1). -&#119908; is a scalar weight constant, as defined by Lawrence & Colman, 1993.
 ## Comparison to original Lawrence & Colman reported values
