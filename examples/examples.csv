@@ -1,0 +1,6 @@
+pdb_file,chains
+./examples/2PFK.pdb,A_B
+./examples/2SEC.pdb,E_I
+./examples/1CHO.pdb,EFG_I
+./examples/1FDL.pdb,HL_Y
+./examples/2SNI.pdb,E_I
