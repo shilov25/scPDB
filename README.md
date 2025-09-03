@@ -27,10 +27,10 @@ To calculate the Sc score between an antibody and an antigen, use `--chains HL_Y
 ```
 python run_scPDB.py --pdb_file ./examples/1FDL.pdb --chains HL_Y --output_dir ./examples
 ```
-scPDB will generate a [`1FDL_sc_histogram.svg`](https://github.com/shilov25/scPDB/blob/main/examples/1FDL/1FDL_sc_histogram.svg) to visualize the distribution of Sc scores for each binder, as well as a [`1FDL_sc_scores.csv`](https://github.com/shilov25/scPDB/blob/main/examples/1FDL/1FDL_sc_scores.csv) file containing the individual scores for chains HL and Y, interface areas for HL and Y, and the final Sc score.
+scPDB will generate a [1FDL_sc_histogram.svg](https://github.com/shilov25/scPDB/blob/main/examples/1FDL/1FDL_sc_histogram.svg) to visualize the distribution of Sc scores for each binder, as well as a [1FDL_sc_scores.csv](https://github.com/shilov25/scPDB/blob/main/examples/1FDL/1FDL_sc_scores.csv) file containing the individual scores for chains HL and Y, interface areas for HL and Y, and the final Sc score.
 
 ### Batch file processing
-In order to calculate the Sc scores for a batch of `.pdb` files, scPDB requires a `.csv` file containing the file paths (`pdb_file`) and chain information (`chains`), as formatted for single file processing. See `examples.csv`. Batch processing will generate the same `sc_histogram.svg` and `sc_scores.csv` outputs for each individual `.pdb` file, as well as a combined `.csv` containing all the Sc scores for the batch. See `examples_sc_scores.csv`.
+In order to calculate the Sc scores for a batch of `.pdb` files, scPDB requires a `.csv` file containing the file paths (`pdb_file`) and chain information (`chains`), as formatted for single file processing. See [examples.csv](https://github.com/shilov25/scPDB/blob/main/examples/examples.csv). Batch processing will generate the same `sc_histogram.svg` and `sc_scores.csv` outputs for each individual `.pdb` file, as well as a combined `.csv` containing all the Sc scores for the batch. See [examples_sc_scores.csv](https://github.com/shilov25/scPDB/blob/main/examples/examples_sc_scores.csv).
 
 These flags are *required* for batch processing:
  * `--batch_csv` Path to PDB file.
