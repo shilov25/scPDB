@@ -79,7 +79,7 @@ if __name__ == "__main__":
     argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     #basic arguments
-    argparser.add_argument("--run_name", type=str, default=None, help="Name of output directory. If not provided, uses PDB filename.")
+    argparser.add_argument("--run_name", type=str, default=None, help="Naming convention for output files. If not provided, uses PDB filename.")
     argparser.add_argument("--output_dir", type=str, default="./", help="Path to output directory.")
     argparser.add_argument("--batch_csv", type=str, help="Path to .csv file containing 'pdb_file' and 'chains' columns for batch processing.")
 

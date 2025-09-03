@@ -4,7 +4,7 @@ scPDB is an easy-to-use tool for calculating shape complementarity (Sc) scores, 
 ## Installing scPDB
 scPDB manages its dependencies using conda and requires a conda environment with only a few packages. scPDB can be installed using the following commands:
 ```
-git clone URL TO REPO
+git clone https://github.com/shilov25/scPDB
 cd scPDB
 conda env create -f requirements.yaml
 conda activate sc_pdb
@@ -13,27 +13,42 @@ conda activate sc_pdb
 ### Single file processing
 In order to calculate the Sc score for a single `.pdb` file, scPDB requires the file path and the chains that differentiate the two interaction interfaces (these are termed "Binder 1" and "Binder 2" in the program).
 
-These flags are *required* for single PDB processing:
-`--pdb_file` type=str, help="Path to PDB file."
-`--chains` type=str, help="Chains for which to calculate shape complementary score."
+These flags are *required* for single file processing:
+ * `--pdb_file` Path to PDB file.
+ * `--chains` Chains for which to calculate shape complementary score.
 
-These flags are *recommended* for single `.pdb` processing:
+These flags are *recommended* for single file processing:
+ * `--output_dir` Path to output directory (default="./")
+ * `--save_obj_files` If provided, saves PyMOL interface mesh outputs as individual `.obj` files, helpful for inspection and troubleshooting. If Sc scores are unexpected, issues may stem from incorrect mesh generation.
+ * `--save_binder_files` If provided, saves Binder 1 and Binder 2 as individual `.pdb` files.
 
 **Example**
-To calculate the Sc score between an antibody and an antigen, use `--chains HL_A` which treats the heavy and light chains as a single interface, and the antigen chain as a separate interface. Chains may also be omitted from this flag `-chains H_A` so that only the heavy chain comprises the antibody interface.
+To calculate the Sc score between an antibody and an antigen, use `--chains HL_Y` which treats the heavy and light chains as a single interface, and the antigen chain as a separate interface. Chains may also be omitted from this flag `-chains H_Y` so that only the heavy chain comprises the antibody interface.
 ```
-
+python run_scPDB.py --pdb_file ./examples/1FDL.pdb --chains HL_Y --output_dir ./examples
 ```
-scPDB will generate a histogram to visualize the distribution of Sc scores for each binder, as well as a `.csv` file containing the individual scores for Binders 1 and 2, interface areas for Binders 1 and 2, and the final Sc score.
-
+scPDB will generate a `1FDL_sc_histogram.svg` to visualize the distribution of Sc scores for each binder, as well as a `1FDL_sc_scores.csv` file containing the individual scores for chains HL and Y, interface areas for HL and Y, and the final Sc score.
 
 ### Batch file processing
-In order to calculate the Sc scores for a batch of `.pdb` files, scPDB requires a `.csv` file containing the file paths (`pdb_file`) and chain information (`chains`), as formatted for single file processing. See `examples.csv`. Batch processing will generate the same histogram and `.csv` outputs for each individual `.pdb` file, as well as a combined `.csv` containing all Sc scores.
+In order to calculate the Sc scores for a batch of `.pdb` files, scPDB requires a `.csv` file containing the file paths (`pdb_file`) and chain information (`chains`), as formatted for single file processing. See `examples.csv`. Batch processing will generate the same `sc_histogram.svg` and `sc_scores.csv` outputs for each individual `.pdb` file, as well as a combined `.csv` containing all the Sc scores for the batch. See `examples_sc_scores.csv`.
+
+These flags are *required* for batch processing:
+ * `--batch_csv` Path to PDB file.
+
+These flags are *recommended* for batch processing:
+ * `--output_dir` Path to output directory (default="./")
 
 **Example**
-
-
+```
+python run_scPDB.py --batch_csv ./examples/examples.csv --output_dir ./examples
+```
 ### Optional scPDB argument flags
+These flags may be specified, but it is **recommended** to keep them at their default values.
+
+ * `--run_name` Naming convention for output files. If not provided, uses PDB filename **(default = None)**.
+ * `--w_constant` Non-zero scalar constant for defining rate of sc score decay **(default = 0.5)**.
+ * `--surface_point_density` Number of points/&Aring;<sup>2</sup> to sample **(default = 30)**. Values >30 do not significantly change Sc scores.
+ * `--interface_thresh` Distance threshold (&Aring;) for defining interaction interface between two binders **(default = 1.5)**. The Sc score is extremely sensitive to this value since it determines the size of the interface meshes to sample from. Values >3 not recommended.
 
 ## Defining surface complementarity
 Although shape complementarity scores range anywhere from [-1, 1], most protein interactions falling somewhere between 0 and 1, with 0 indicating poor shape complementarity and 1 indicating perfect shape complementarity. Sc scores depend on two components: surface orientation and surface distance. The shape complementarity is described as follows:
