@@ -137,17 +137,14 @@ def create_binder_interfaces(binder1_mesh, binder2_mesh, interface_thresh):
 
     return b1_interface_mesh, b2_interface_mesh, b1_interface_area, b2_interface_area
 
-def sample_surface_points(b1_interface_mesh, b2_interface_mesh, b1_interface_area, b2_interface_area, surface_point_density):
+def sample_surface_points(interface_mesh, interface_area, surface_point_density):
     """
     Samples # of surface points/Angstrom^2 over the interface area.
     """
-    num_b1_surface_points = round(b1_interface_area * surface_point_density)
-    num_b2_surface_points = round(b2_interface_area * surface_point_density)
+    num_surface_points = round(interface_area * surface_point_density)
+    sampled_coords, indices = trimesh.sample.sample_surface_even(interface_mesh, num_surface_points)
 
-    b1_sampled_coords, b1_indices = trimesh.sample.sample_surface_even(b1_interface_mesh, num_b1_surface_points)
-    b2_sampled_coords, b2_indices = trimesh.sample.sample_surface_even(b2_interface_mesh, num_b2_surface_points)
-
-    return b1_sampled_coords, b2_sampled_coords, b1_indices, b2_indices
+    return sampled_coords, indices
 
 def find_nearest_neighbor(b1_sampled_coords, b2_sampled_coords):
     """
@@ -176,24 +173,17 @@ def find_nearest_neighbor(b1_sampled_coords, b2_sampled_coords):
 
     return nearest_neighbors
 
-def calculate_surface_normal_vectors(b1_interface_mesh, b2_interface_mesh, b1_indices, b2_indices):
+def calculate_surface_normal_vectors(interface_mesh, indices):
     """
     For each point, a normal vector is calculated. The normal 
     vector points OUT from the face at the sampled point.
     """
-    #calculate normals for binder 1 surface points
-    binder1_normals = []
-    for i in b1_indices:
-        face_normal = b1_interface_mesh.face_normals[i]
-        binder1_normals.append(face_normal)
+    binder_normals = []
+    for i in indices:
+        face_normal = interface_mesh.face_normals[i]
+        binder_normals.append(face_normal)
 
-    #calculate normals for binder 2 surface points
-    binder2_normals = []
-    for i in b2_indices:
-        face_normal = b2_interface_mesh.face_normals[i]
-        binder2_normals.append(face_normal)
-
-    return np.array(binder1_normals), np.array(binder2_normals)
+    return np.array(binder_normals)
 
 def calculate_neighbor_normal_vectors(nearest_neighbors, binder1_normals, binder2_normals):
     """
@@ -211,15 +201,13 @@ def calculate_neighbor_normal_vectors(nearest_neighbors, binder1_normals, binder
 
     return np.array(b1_neighbor_normals), np.array(b2_neighbor_normals)
 
-def remove_obj_files(binder1_filepath, binder2_filepath, save_obj_files):
+def remove_obj_files(binder_filepath, save_obj_files):
     if not save_obj_files:
-        os.remove(binder1_filepath)
-        os.remove(binder2_filepath)
+        os.remove(binder_filepath)
 
-def remove_binder_files(binder1_pdb, binder2_pdb, save_binder_files):
+def remove_binder_files(binder_pdb, save_binder_files):
     if not save_binder_files:
-        os.remove(binder1_pdb)
-        os.remove(binder2_pdb)
+        os.remove(binder_pdb)
 
 def calculate_sc(binder1_chains, binder2_chains, binder1_pdb, binder2_pdb, run_name, output_dir, interface_thresh, surface_point_density, w_constant, save_obj_files, save_binder_files):
     """
@@ -244,7 +232,6 @@ def calculate_sc(binder1_chains, binder2_chains, binder1_pdb, binder2_pdb, run_n
         run_name,
         output_dir,
         )
-
     #get interfaces and their areas for binder 1 and binder 2
     b1_interface_mesh, b2_interface_mesh, b1_interface_area, b2_interface_area = create_binder_interfaces(
         binder1_mesh,
@@ -252,10 +239,13 @@ def calculate_sc(binder1_chains, binder2_chains, binder1_pdb, binder2_pdb, run_n
         interface_thresh,
         )
     #get point samples across interface surface for binder 1 and binder 2
-    b1_sampled_coords, b2_sampled_coords, b1_indices, b2_indices = sample_surface_points(
+    b1_sampled_coords, b1_indices = sample_surface_points(
         b1_interface_mesh, 
-        b2_interface_mesh, 
         b1_interface_area, 
+        surface_point_density,
+        )
+    b2_sampled_coords, b2_indices = sample_surface_points(
+        b2_interface_mesh,
         b2_interface_area,
         surface_point_density,
         )
@@ -265,10 +255,12 @@ def calculate_sc(binder1_chains, binder2_chains, binder1_pdb, binder2_pdb, run_n
         b2_sampled_coords,
         )
     #get normals for sampled points on binders 1 and 2
-    binder1_normals, binder2_normals = calculate_surface_normal_vectors(
+    binder1_normals = calculate_surface_normal_vectors(
         b1_interface_mesh,
-        b2_interface_mesh,
         b1_indices,
+        )
+    binder2_normals = calculate_surface_normal_vectors(
+        b2_interface_mesh,
         b2_indices,
         )
     #get normals for neighbors of sampled points on binders 1 and 2
@@ -277,18 +269,12 @@ def calculate_sc(binder1_chains, binder2_chains, binder1_pdb, binder2_pdb, run_n
         binder1_normals, 
         binder2_normals,
         )
-    
-    remove_obj_files(
-        binder1_filepath, 
-        binder2_filepath, 
-        save_obj_files
-        )
-    
-    remove_binder_files(
-        binder1_pdb, 
-        binder2_pdb, 
-        save_binder_files,
-        )
+    #remove files, unless flagged
+    remove_obj_files(binder1_filepath, save_obj_files)
+    remove_obj_files(binder2_filepath, save_obj_files)
+
+    remove_binder_files(binder1_pdb, save_binder_files)
+    remove_binder_files(binder2_pdb, save_binder_files)
 
     #Calculate S(b1->b2)(x_b1)
     b1_orientation_component = np.sum(binder1_normals * b1_neighbor_normals, axis=1) #(n_a . n'_a)
